@@ -1,0 +1,14 @@
+$Fonts: Helvetica, sans-serif;
+$Color: green;
+$FontSize: 25px;
+
+body {
+    background: aliceblue;
+    padding: 100px 100px;
+        h{
+            font-size:larger;
+        }
+    font-family: $Fonts;
+    font-size: $FontSize;
+    color: $Color;
+}
