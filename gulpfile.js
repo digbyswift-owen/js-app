@@ -1,48 +1,66 @@
 const gulp = require('gulp');
-const sass = require('gulp-sass')(require('node-sass'));
-var clean = require('gulp-clean');
+const sass = require('gulp-sass')(require('sass'));
+const clean = require('gulp-clean');
 const cleanCSS = require('gulp-clean-css');
-const webpack = require('webpack');
-const webpackConfig= require('./webpack.config.js');
+const webpack = require('webpack-stream');
+const sassLint = require('gulp-sass-lint');
+const eslint = require('gulp-eslint');
 
-function cleanDist (){
-    return gulp.src('./dist/', {read:false})
-        .pipe(clean());
+function cleanDist() {
+  return gulp.src('./dist/', {read: false, allowEmpty: true})
+      .pipe(clean());
+}
+
+function runSassLint() {
+  return gulp.src('./src/scss/*.scss')
+      .pipe(sassLint())
+      .pipe(sassLint.format())
+      .pipe(sassLint.failOnError());
+};
+
+function runEslint() {
+  return gulp.src('./src/**/*.js')
+      .pipe(eslint())
+      .pipe(eslint.format())
+      .pipe(eslint.failAfterError());
 }
 
 function buildStyles() {
-    return gulp.src('./src/scss/*.scss')
+  return gulp.src('./src/scss/*.scss')
       .pipe(sass({style: 'compressed'}).on('error', sass.logError))
-      .pipe(gulp.dest('./src/css/'))
-      .pipe(gulp.src('./src/css/*css'))
+      .pipe(gulp.dest('./dist/css/'))
+      .pipe(gulp.src('./dist/css/*css'))
       .pipe(cleanCSS({compatibility: 'ie8'}))
       .pipe(gulp.dest('./dist/css'));
-  };
+};
 
-function assets(){
-    return new Promise ((resolve, reject) => {
-        webpack(webpackConfig, (err, stats) => {
-            if (err) {
-                return reject(err)
-            }
-            if (stats.hasErrors()) {
-                return reject(new Error(stats.compilation.errors.join('\n')))
-            }
-            resolve()
-        })
-    })
+function assetsDev() {
+  return gulp.src('src/js/index.js')
+      .pipe(webpack({
+        config: require('./webpack.development.config.js'),
+      }))
+      .pipe(gulp.dest('dist/'));
 }
 
-
-exports.default = function(){
-    gulp.watch('./src/scss/*.scss', { ignoreInitial: false}, buildStyles, minifyCSS,);
-    gulp.watch('./src/*.js', {ignoreInitial: false}, assets);
+function assetsBuild() {
+  return gulp.src('src/js/index.js')
+      .pipe(webpack({
+        config: require('./webpack.production.config.js'),
+      }))
+      .pipe(gulp.dest('dist/'));
 }
+exports.watch = function() {
+  gulp.series(
+      runSassLint, cleanDist,
+      gulp.watch('./src/scss/*.scss', {ignoreInitial: false}, buildStyles),
+      gulp.watch('./src/js/*.js', {ignoreInitial: false}, assetsDev),
+  );
+};
 
-exports.build = gulp.series
-    (cleanDist,
-        gulp.parallel(
-            buildStyles,
-            assets
-    )
+exports.build = gulp.series(
+    runEslint, runSassLint, cleanDist, gulp.parallel(buildStyles, assetsBuild),
+);
+
+exports.default = gulp.series(
+    runEslint, runSassLint, cleanDist, gulp.parallel(buildStyles, assetsDev),
 );

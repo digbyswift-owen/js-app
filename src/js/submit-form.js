@@ -1,10 +1,14 @@
 export default {
-    submitForm: (e) => {
-        const name = e.target.name.value;
-        fetch('./pages/thank-you.html', { method: 'GET'}).then((response) => {
-            if(response.status == 200){
-                window.location.href = `./pages/thank-you.html?name=${name}`;
-            }
+  submitForm: (e) => {
+    const name = e.target.name.value;
+    fetch(`/src/thank-you.html`, {method: 'GET'})
+        .then((res) => {
+          return res.text();
         })
-    }
-}
+        .then((text) => {
+          document.getElementById('form-div').innerHTML = text;
+          document.getElementById('name').innerHTML = name;
+        });
+  },
+};
+
