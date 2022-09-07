@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const gulp = require('gulp');
 const sass = require('gulp-sass')(require('sass'));
 const clean = require('gulp-clean');
@@ -12,7 +13,7 @@ function cleanDist() {
 }
 
 function runSassLint() {
-  return gulp.src('./src/scss/*.scss')
+  return gulp.src('./src/public/scss/*.scss')
       .pipe(sassLint())
       .pipe(sassLint.format())
       .pipe(sassLint.failOnError());
@@ -26,7 +27,7 @@ function runEslint() {
 }
 
 function buildStyles() {
-  return gulp.src('./src/scss/*.scss')
+  return gulp.src('./src/public/scss/*.scss')
       .pipe(sass({style: 'compressed'}).on('error', sass.logError))
       .pipe(gulp.dest('./dist/css/'))
       .pipe(gulp.src('./dist/css/*css'))
@@ -35,7 +36,7 @@ function buildStyles() {
 };
 
 function assetsDev() {
-  return gulp.src('src/js/index.js')
+  return gulp.src('src/public/js/index.js')
       .pipe(webpack({
         config: require('./webpack.development.config.js'),
       }))
@@ -43,7 +44,7 @@ function assetsDev() {
 }
 
 function assetsBuild() {
-  return gulp.src('src/js/index.js')
+  return gulp.src('src/public/js/index.js')
       .pipe(webpack({
         config: require('./webpack.production.config.js'),
       }))
@@ -52,8 +53,8 @@ function assetsBuild() {
 exports.watch = function() {
   gulp.series(
       runSassLint, cleanDist,
-      gulp.watch('./src/scss/*.scss', {ignoreInitial: false}, buildStyles),
-      gulp.watch('./src/js/*.js', {ignoreInitial: false}, assetsDev),
+      gulp.watch('./src/public/scss/*.scss', {ignoreInitial: false}, buildStyles),
+      gulp.watch('./src/public/js/*.js', {ignoreInitial: false}, assetsDev),
   );
 };
 

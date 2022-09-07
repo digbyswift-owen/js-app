@@ -4,13 +4,13 @@
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Form</title>
-    <link rel="stylesheet" href="/dist/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
     <meta name='viewport' content='width=device-width, initial-scale=1'>
 </head>
 <body>
     <div id="form-div">
         <h1>Submit Your Name</h1>
-        <form id="name-form">
+        <form id="name-form" action="/submit-form" method="get">
             <label for="name">Please Enter Your Name:</label>
             <input
                 id="name-field"
@@ -18,8 +18,8 @@
                 type="text">
             <input id="submit-button" type="submit" disabled="true">
         </form>
-        <button id="hide-button">Hide Form</button>
     </div>
-    <script src="../dist/main.js"></script>
+    <button id="hide-button">Hide Form</button>
+    <script src="/main.js"></script>
     </body>
 </html>
